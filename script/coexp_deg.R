@@ -98,7 +98,7 @@ library(viridis)
 
 clu_num = 10
 
-# DEseq2 output
+# DESeq2 output
 dir = './'
 files = list.files(path=dir, recursive = FALSE, pattern = "*.tsv", full.names = TRUE)
 # P-value threshold for DEG

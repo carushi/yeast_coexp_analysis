@@ -1,7 +1,7 @@
 source("go_enrichment.R")
 # coexpression cluster data
 dir = "./"
-# DEseq2 output files
+# DESeq2 output files
 rna_dir = "./"
 for (fname in list.files(rna_dir, pattern="*.tsv", full.names=TRUE)) {
     header = gsub(pattern = "\\.tsv$", "", basename(fname))
