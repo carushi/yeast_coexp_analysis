@@ -1,7 +1,7 @@
-source("/home/rkawaguc/ipython/ChIP/rna_seq_script/go_enrichment.R")
+source("go_enrichment.R")
 # coexpression cluster data
 dir = "./"
-# DEG data
+# DEseq2 output files
 rna_dir = "./"
 for (fname in list.files(rna_dir, pattern="*.tsv", full.names=TRUE)) {
     header = gsub(pattern = "\\.tsv$", "", basename(fname))
