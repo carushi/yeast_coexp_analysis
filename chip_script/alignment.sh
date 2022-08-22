@@ -15,7 +15,7 @@ STAR --genomeSAindexNbases 10 --runThreadN 4 --runMode genomeGenerate --genomeDi
 cd ${DATA_DIR}
 for dir in $DIRS 
 do
-cd $dir
+cd LID${dir}
 ls *.gz
 ls  *.gz | xargs -I{} fastqc {}
 find ./ -name "*.fastq.gz" -exec gunzip {} \;
@@ -24,7 +24,7 @@ done
 
 for dir in $DIRS
 do
-cd $DATA_DIR/${dir}
+cd $DATA_DIR/LID${dir}
 FILES=(*_R1_001.fastq.gz)
 for file in "${FILES[@]}"
 do
