@@ -2,11 +2,18 @@
 set -exuo pipefail 
 
 DATA_DIR=./
-GENOME=./
+GENOME=./genome/
 GENOME_DIR=./data/SGD/chromFaMasked/
 ANN_DIR=./data/ann/
 
 DIRS="300600 301136 301417 301760 302393 303277 305218 305704 305826 306560 306595 306600"
+
+if [ -d "LID${dir}" ] 
+then
+    echo ${GENOME}
+else
+    mkdir ${GENOME}
+fi
 
 STAR --genomeSAindexNbases 10 --runThreadN 4 --runMode genomeGenerate --genomeDir ${GENOME} \
 --genomeFastaFiles ${GENOME_DIR}/*.masked --sjdbGTFfile ${ANN_DIR}/Saccharomyces_cerevisiae.R64-1-1.98_chr.gtf \
@@ -48,7 +55,7 @@ then
     --twopassMode Basic \
     --twopass1readsN -1 \
     --limitBAMsortRAM 1145611175 \
-    --runThreadN 3  --genomeDir ${GENOME} --readFilesIn ${bfname}_trimmed_R1.fastq ${bfname}_trimmed_R2.fastq --outFileNamePrefix ${bfname}
+    --runThreadN 3  --genomeDir ../${GENOME} --readFilesIn ${bfname}_trimmed_R1.fastq ${bfname}_trimmed_R2.fastq --outFileNamePrefix ${bfname}
     bzip2 ${bfname}_trimmed_R*.fastq
     done
 fi
