@@ -6,7 +6,8 @@ GENOME=./
 GENOME_DIR=./data/SGD/chromFaMasked/
 ANN_DIR=./data/ann/
 
-DIRS="300600 301136 301417 301760 302393 303277 305218 305704 305826 306560 306595 306600"
+# DIRS="300600 301136 301417 301760 302393 303277 305218 305704 305826 306560 306595 306600"
+DIRS="300600"
 
 STAR --genomeSAindexNbases 10 --runThreadN 4 --runMode genomeGenerate --genomeDir ${GENOME} \
 --genomeFastaFiles ${GENOME_DIR}/*.masked --sjdbGTFfile ${ANN_DIR}/Saccharomyces_cerevisiae.R64-1-1.98_chr.gtf \
@@ -16,9 +17,9 @@ cd ${DATA_DIR}
 for dir in $DIRS 
 do
 cd LID${dir}
-ls *.gz
-ls  *.gz | xargs -I{} fastqc {}
-find ./ -name "*.fastq.gz" -exec gunzip {} \;
+# ls *.gz
+# ls  *.gz | xargs -I{} fastqc {}
+# find ./ -name "*.fastq.gz" -exec gunzip {} \;
 cd ../
 done
 
