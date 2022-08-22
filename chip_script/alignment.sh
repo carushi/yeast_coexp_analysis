@@ -1,13 +1,15 @@
 #!/bin/bash
+set -exuo pipefail 
 
 DATA_DIR=./
 GENOME=./
+GENOME_DIR=./data/SGD/chromFaMasked/
+ANN_DIR=./data/ann/
 
 DIRS="300600 301136 301417 301760 302393 303277 305218 305704 305826 306560 306595 306600"
 
-set -exuo pipefail 
-STAR --genomeSAindexNbases 10 --runThreadN 4 --runMode genomeGenerate --genomeDir data/SGD/star \
---genomeFastaFiles data/SGD/chromFaMasked/*.masked --sjdbGTFfile data/ann/Saccharomyces_cerevisiae.R64-1-1.98_chr.gtf \
+STAR --genomeSAindexNbases 10 --runThreadN 4 --runMode genomeGenerate --genomeDir ${GENOME} \
+--genomeFastaFiles ${GENOME_DIR}/*.masked --sjdbGTFfile ${ANN_DIR}/Saccharomyces_cerevisiae.R64-1-1.98_chr.gtf \
 --sjdbOverhang 50
 
 cd ${DATA_DIR}
