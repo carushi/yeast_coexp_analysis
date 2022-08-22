@@ -8,7 +8,7 @@ ANN_DIR=./data/ann/
 
 DIRS="300600 301136 301417 301760 302393 303277 305218 305704 305826 306560 306595 306600"
 
-if [ -d "LID${dir}" ] 
+if [ -d "${GENOME}" ] 
 then
     echo ${GENOME}
 else
