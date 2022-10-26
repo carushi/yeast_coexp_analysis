@@ -1,4 +1,4 @@
-chr	start	end	gene	gene2	reliability	Pd1	Pd3	Pd5	origin	late_origin	center
+#chr	start	end	gene	gene2	reliability	Pd1	Pd3	Pd5	origin	late_origin	center
 chrXII	443983	473983	ARS1216.5	rDNA ARS	Confirmed	745.0504285714289	1063.36357142857	1481.09714285714	True	False	458983.5
 chrXII	452570	482570			Dubious	611.7533636363639	663.580836363636	1082.6656	True	False	467570.0
 chrXII	445580	475580			Dubious	474.051	571.260733333333	585.3192	True	False	460580.0
