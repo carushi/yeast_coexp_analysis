@@ -1,6 +1,7 @@
 require(pROC)
 require(matrixStats)
 threshold = 0.05
+CHIP_ANN <<- "../../ann/"
 
 ScaleResidualMatrix <- function(res.data, time=45, max_value=NA) {
     if (is.na(max_value)) {
@@ -128,7 +129,7 @@ FilterResidual <- function(res.data, time) {
 }
 
 checkTopResData <- function(res.data, top.res.flag) {
-    top_db <- read.table("../../ann/gene/top_db_lu.csv", header=T, sep=",", stringsAsFactors=F)    
+    top_db <- read.table(file.path(CHIP_ANN, "top_db_lu.csv"), header=T, sep=",", stringsAsFactors=F)    
     print(min(abs(res.data[top.res.flag, 'WT_HU45_500_.1'])))
     index = unlist(sapply(top_db[,'gene_id'], function(x) {
         return(which(x == res.data[,'gene_id']))
