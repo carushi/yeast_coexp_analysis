@@ -721,7 +721,6 @@ for (btail in btail_list) {
             if (statistics) 
                 break
             target_range = read.origin.data(target, filt, time=time, ori.id=ORI_STAT)
-            # ext = 5000
             ext = 15000
             plot.cluster.annotated.origin.heatmap(fc_range, target, target_range, tail, ext, btail, col_fun, top_ann, filt_prefix, time_prefix)
         }
