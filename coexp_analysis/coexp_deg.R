@@ -101,7 +101,7 @@ clustering.by.hierarchical.clustering <- function(mat, ggmat, network, header, b
 }
 
 
-for (network in c('HC', '')[1]) {
+for (network in c('HC_', '')[1]) {
     fname = paste0("yeast_", network, "AggNet.hdf5")
     hdf5 = H5Fopen(fname)
     gene_list = hdf5$col
