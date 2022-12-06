@@ -1,3 +1,16 @@
+library(rhdf5)
+library(ComplexHeatmap)
+library(circlize)
+library(viridis)
+
+clu_num = 10
+
+# DESeq2 output
+dir = './'
+files = list.files(path=dir, recursive = FALSE, pattern = "*.tsv", full.names = TRUE)
+# P-value threshold for DEG
+thres = 0.05
+
 extract.cluster <- function(mat, rcl.list, r.dend) {
     mnames = rownames(mat)
     for (i in 1:length(rcl.list)) {
@@ -23,9 +36,9 @@ filter.mat <- function(mat, colname, rowname) {
     return(mat)
 }
 
-clustering.by.complex.heatmap <- function(mat, network, header, bg_gene, tcul_num, ha)
+clustering.by.complex.heatmap <- function(mat, ggmat, network, header, bg_gene, cluster_size, ha)
 {
-    heatmap2 = Heatmap(mat, clustering_distance_rows = "pearson", clustering_distance_columns="pearson", km=tclu_num, right_annotation = ha)
+    heatmap2 = Heatmap(mat, clustering_distance_rows = "pearson", clustering_distance_columns="pearson", km=cluster_size, right_annotation = ha)
     row_ord = row_order(heatmap2)
     row_dend = row_dend(heatmap2)
     out = extract.cluster(mat, row_ord, row_dend)
@@ -36,16 +49,16 @@ clustering.by.complex.heatmap <- function(mat, network, header, bg_gene, tcul_nu
     draw(heatmap2, row_split=split, column_split=split)
     dev.off()
     out = rbind(out, data.frame(GeneID=unlist(sapply(bg_gene, function(x){if(!any(x == out[,1]))return(x);})), Cluster='insignificant'))
-    write.table(out, paste0(network, '_', header, '_cluster_', tclu_num, '.tsv'))
+    write.table(out, paste0(network, '_', header, '_cluster_', cluster_size, '.tsv'))
     ha = rowAnnotation(gene=col_list, col = list(gene = col_fun))
     cha = HeatmapAnnotation(gene=col_list, col = list(gene = col_fun))
-    heatmap3 = Heatmap(mat2,  row_split=split, column_split=split, cluster_row_slices=FALSE, cluster_column_slices=FALSE, clustering_distance_rows="pearson", clustering_distance_columns="pearson", right_annotation = ha)
+    heatmap3 = Heatmap(ggmat,  row_split=split, column_split=split, cluster_row_slices=FALSE, cluster_column_slices=FALSE, clustering_distance_rows="pearson", clustering_distance_columns="pearson", right_annotation = ha)
     png(paste0('df_heatmap_after_', network, '_', header, '.png'))
     draw(heatmap3)
     dev.off()
 }
 
-clustering.by.hierarchical.clustering <- function(mat, network, header, bg_gene)
+clustering.by.hierarchical.clustering <- function(mat, ggmat, network, header, bg_gene, cluster_size)
 {
     require(stringr)
     require(dynamicTreeCut)
@@ -54,10 +67,8 @@ clustering.by.hierarchical.clustering <- function(mat, network, header, bg_gene)
     for (filter in c('', '_dc')) {
         if (filter == '') {
             groups <- cutree(m_hclust, k=10)
-            cluster = 10
         } else {
             groups = cutreeDynamic(m_hclust, distM=as.matrix(m_dist))
-            cluster = length(unique(groups))
         }
         stopifnot(length(groups) == dim(mat)[1])
         heatmap2 = Heatmap(mat, cluster_rows=m_hclust, clustering_distance_columns="pearson", right_annotation = ha)
@@ -81,8 +92,8 @@ clustering.by.hierarchical.clustering <- function(mat, network, header, bg_gene)
         draw(heatmap2)
         dev.off()
         out = rbind(out, data.frame(GeneID=unlist(sapply(bg_gene, function(x){if(!any(x == out[,1]))return(x);})), Cluster='insignificant'))
-        write.table(out, paste0(network, '_', header, '_cluster_', tclu_num, filter, '.tsv'))
-        heatmap3 = Heatmap(mat2, cluster_rows=m_hclust, cluster_columns=m_hclust, right_annotation = hac, row_labels=row_labels, column_labels=row_labels)
+        write.table(out, paste0(network, '_', header, '_cluster_', cluster_size, filter, '.tsv'))
+        heatmap3 = Heatmap(ggmat, cluster_rows=m_hclust, cluster_columns=m_hclust, right_annotation = hac, row_labels=row_labels, column_labels=row_labels)
         pdf(paste0('df_heatmap_after_', network, '_', header, filter, '.pdf'))
         draw(heatmap3)
         dev.off()
@@ -90,26 +101,13 @@ clustering.by.hierarchical.clustering <- function(mat, network, header, bg_gene)
 }
 
 
-
-library(rhdf5)
-library(ComplexHeatmap)
-library(circlize)
-library(viridis)
-
-clu_num = 10
-
-# DESeq2 output
-dir = './'
-files = list.files(path=dir, recursive = FALSE, pattern = "*.tsv", full.names = TRUE)
-# P-value threshold for DEG
-thres = 0.05
-for (network in c('meta', 'prio')[1]) {
+for (network in c('HC', '')[1]) {
     fname = paste0("yeast_", network, "AggNet.hdf5")
     hdf5 = H5Fopen(fname)
     gene_list = hdf5$col
     coexp_mat = hdf5$agg
     for (deg_file in files) {
-        print(deg_file)
+        message(paste('Reading DEG file', deg_file))
         deg <- read.table(deg_file, header=TRUE, sep="\t")
         deg <- deg[!is.na(rownames(deg)),]
         deg <- deg[!is.na(deg[,'padj']),]
@@ -121,24 +119,23 @@ for (network in c('meta', 'prio')[1]) {
         deg <- deg[unlist(sapply(rownames(deg), function(x){return(any(x == gene_list))})),]
         bg_gene = rownames(deg)
         deg <- deg[deg[,'padj'] <= thres,]
-        print(rownames(deg))
-        print(c("->", dim(deg)))
+        message(paste(rownames(deg), "->", dim(deg)))
         if (dim(deg)[1] < 10) next
         gene_order = unlist(sapply(rownames(deg), function(x){return(which(x == gene_list)[1])}))
         mat <- filter.mat(coexp_mat[gene_order, ], gene_list, rownames(deg))
-        mat2 <- filter.mat(coexp_mat[gene_order, gene_order], rownames(deg), rownames(deg))
-        stopifnot(isSymmetric(mat2))
+        ggmat <- filter.mat(coexp_mat[gene_order, gene_order], rownames(deg), rownames(deg))
+        stopifnot(isSymmetric(ggmat))
         mat = mat[,colMeans(mat) != unlist(apply(mat, 2, max, na.rm=TRUE))]
         flag = (rowMeans(mat) == unlist(apply(mat, 1, max, na.rm=TRUE)))
         mat = mat[!flag,]
         gene_order = gene_order[!flag]
-        tclu_num = min(dim(mat)[1], clu_num)
+        min_clu_num = min(dim(mat)[1], clu_num)
         col_fun = colorRamp2(c(-2, 0, 2), c("darkblue", "white", "darkred"))
         col_list = unlist(sapply(rownames(mat), function(x){return(deg[which(rownames(deg) == x)[1],'log2FoldChange'])}))
         names(col_list) = rownames(mat)
         ha = rowAnnotation(gene=col_list, col = list(gene = col_fun))
-        # clustering.by.complex.heatmap(mat, network, header, bg_gene) built-in clustering in ComplexHeatmap
-        clustering.by.hierarchical.clustering(mat, network, header, bg_gene)
+        # clustering.by.complex.heatmap(mat, ggmat, network, header, bg_gene, min_clu_num, ha) built-in clustering in ComplexHeatmap
+        clustering.by.hierarchical.clustering(mat, ggmat, network, header, bg_gene, min_clu_num)
     }
     H5Fclose(hdf5)
 }
