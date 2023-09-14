@@ -41,6 +41,7 @@
     * input: output of coexp_deg.R and output of DESeq2
 
 ## Reference
-* [Prevalent and Dynamic Binding of the Cell Cycle Checkpoint Kinase Rad53 to Gene Promoters.](https://www.biorxiv.org/content/10.1101/2021.05.23.445333v3) 
+* [Prevalent and Dynamic Binding of the Cell Cycle Checkpoint Kinase Rad53 to Gene Promoters.](https://elifesciences.org/articles/84320) 
   * Yi-Jun Sheu, Risa Karakida Kawaguchi, Jesse Gillis, Bruce Stillman.
-  * bioRxiv 2021.05.23.445333; doi: https://doi.org/10.1101/2021.05.23.445333
+  * [bioRxiv 2021.05.23.445333](https://www.biorxiv.org/content/10.1101/2021.05.23.445333v3); doi: https://doi.org/10.1101/2021.05.23.445333
+  * [eLife 11:e84320](https://elifesciences.org/articles/84320).
